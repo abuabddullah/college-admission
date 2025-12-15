@@ -1,0 +1,170 @@
+### Health Check
+GET http://localhost:5000/health
+
+### Root endpoint (API documentation)
+GET http://localhost:5000/
+
+###
+### Authentication Tests
+###
+
+### Register new user
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Test User",
+  "email": "testuser@example.com",
+  "password": "password123",
+  "phone": "+1 (555) 123-4567",
+  "address": "123 Test Street, Test City, TC 12345"
+}
+
+### Login with demo account
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "demo@example.com",
+  "password": "password"
+}
+
+### Get current user (replace TOKEN with actual JWT)
+GET http://localhost:5000/api/auth/me
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Update profile (replace TOKEN with actual JWT)
+PUT http://localhost:5000/api/auth/profile
+Authorization: Bearer YOUR_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "name": "Updated Name",
+  "phone": "+1 (555) 999-8888"
+}
+
+###
+### College Tests
+###
+
+### Get all colleges
+GET http://localhost:5000/api/colleges
+
+### Get colleges with search
+GET http://localhost:5000/api/colleges?search=Stanford
+
+### Get colleges with filters
+GET http://localhost:5000/api/colleges?type=University&minRating=4.5&sortBy=rating
+
+### Get single college (replace with actual ID)
+GET http://localhost:5000/api/colleges/COLLEGE_ID_HERE
+
+### Create college (requires auth)
+POST http://localhost:5000/api/colleges
+Authorization: Bearer YOUR_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "name": "Test College",
+  "location": "Test City, State",
+  "description": "A test college for development",
+  "type": "University",
+  "established": 2024,
+  "courses": ["Computer Science", "Business"],
+  "facilities": ["Library", "Lab"],
+  "tuitionFee": 25000,
+  "image": "/placeholder.svg?height=400&width=600",
+  "gallery": []
+}
+
+###
+### Booking Tests
+###
+
+### Get user bookings (requires auth)
+GET http://localhost:5000/api/bookings
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Create booking (requires auth, replace COLLEGE_ID)
+POST http://localhost:5000/api/bookings
+Authorization: Bearer YOUR_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "collegeId": "COLLEGE_ID_HERE",
+  "studentName": "John Doe",
+  "email": "john@example.com",
+  "phone": "+1 (555) 123-4567",
+  "course": "Computer Science",
+  "previousEducation": "High School",
+  "grade": "A+",
+  "address": "123 Main St, City, State, 12345",
+  "guardianName": "Jane Doe",
+  "guardianPhone": "+1 (555) 987-6543"
+}
+
+### Get single booking (requires auth, replace BOOKING_ID)
+GET http://localhost:5000/api/bookings/BOOKING_ID_HERE
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Update booking status (requires auth, replace BOOKING_ID)
+PUT http://localhost:5000/api/bookings/BOOKING_ID_HERE
+Authorization: Bearer YOUR_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "status": "approved"
+}
+
+###
+### Review Tests
+###
+
+### Get reviews for a college (replace COLLEGE_ID)
+GET http://localhost:5000/api/reviews/college/COLLEGE_ID_HERE
+
+### Get user's reviews (requires auth)
+GET http://localhost:5000/api/reviews/user
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Create review (requires auth, replace COLLEGE_ID)
+POST http://localhost:5000/api/reviews
+Authorization: Bearer YOUR_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "collegeId": "COLLEGE_ID_HERE",
+  "rating": 5,
+  "comment": "Excellent college with great facilities and faculty!"
+}
+
+### Update review (requires auth, replace REVIEW_ID)
+PUT http://localhost:5000/api/reviews/REVIEW_ID_HERE
+Authorization: Bearer YOUR_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "rating": 4,
+  "comment": "Updated review comment"
+}
+
+### Delete review (requires auth, replace REVIEW_ID)
+DELETE http://localhost:5000/api/reviews/REVIEW_ID_HERE
+Authorization: Bearer YOUR_TOKEN_HERE
+
+###
+### Admin Tests (simplified - same as user in demo)
+###
+
+### Get all bookings (admin)
+GET http://localhost:5000/api/admin/bookings
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Update booking status (admin)
+PUT http://localhost:5000/api/admin/bookings/BOOKING_ID_HERE
+Authorization: Bearer YOUR_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "status": "approved"
+}
