@@ -6,6 +6,7 @@ import express, {
 import cors from "cors";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import mongoose from "mongoose";
 
 // =============================================
@@ -47,6 +48,8 @@ const userSchema = new mongoose.Schema(
       enum: ["email", "google", "facebook", "github"],
       default: "email",
     },
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
   },
   { timestamps: true }
 );
@@ -456,6 +459,64 @@ app.post(
 );
 
 // Login user
+// ===================== PASSWORD RESET =====================
+
+// Generate reset token & (pretend to) send email
+app.post("/api/auth/forgot-password", async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      res.status(400).json({ error: "Email is required" });
+      return;
+    }
+    const user = await User.findOne({ email });
+    if (!user) {
+      // Do not reveal that email doesn't exist
+      res.json({ message: "If that email address exists, a reset link has been sent" });
+      return;
+    }
+    const token = crypto.randomBytes(32).toString("hex");
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = new Date(Date.now() + 3600 * 1000); // 1 hour
+    await user.save();
+
+    // TODO: Send email with link containing token. For demo we return token.
+    res.json({ message: "Reset token generated", token });
+  } catch (err) {
+    console.error("Forgot password error", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Reset password with token
+app.post("/api/auth/reset-password", async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { token, password } = req.body;
+    if (!token || !password) {
+      res.status(400).json({ error: "Token and new password are required" });
+      return;
+    }
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: new Date() },
+    });
+    if (!user) {
+      res.status(400).json({ error: "Invalid or expired token" });
+      return;
+    }
+    const hashed = await bcrypt.hash(password, 10);
+    user.password = hashed;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+    res.json({ message: "Password has been reset successfully" });
+  } catch (err) {
+    console.error("Reset password error", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ===================== LOGIN =====================
 app.post(
   "/api/auth/login",
   async (req: Request, res: Response): Promise<void> => {
